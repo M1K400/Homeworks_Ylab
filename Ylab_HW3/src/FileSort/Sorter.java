@@ -37,13 +37,14 @@ public class Sorter {
         }
 
 
+
         return res;
     }
 
     private void writeSortDateToResFile(PrintWriter pw){
         //Количество пройденных прогонов ( В случай если кто то закончил чтение своего файла суммируем)
         int count = 0;
-
+        int countVa = 0;
         while (count != countFileProg){
             //Находим минимальное число и его индекс
             long min = minHeap.stream().min(Long::compare).get();
@@ -60,10 +61,11 @@ public class Sorter {
 
             } else {
                 count++;
-                minHeap.remove(index);
                 files.get(index).close();
+                minHeap.remove(index);
                 files.remove(index);
             }
+            countVa++;
         }
 
     }
@@ -106,45 +108,70 @@ public class Sorter {
     //Дальше идёт сортировка слиянием, а точнее деление массива на куски для сортировки
     public long[] mergeSort(long[] array){
 
+        //временный массив чтобы можно было менять ссылки.
         long[] tmp;
+        //Массив источник
         long[] currentSrc = array;
+        //Результирующий массив после слияния
         long[] currentDest = new long[array.length];
 
+        //Сначала идёт размер массив 1
         int size = 1;
-        while (size < array.length){
-            for (int i = 0; i < array.length; i += 2 * size){
-                merge(currentSrc,i,currentSrc,i+size,currentDest,i,size);
+        //Если размер меньше длины массив продолжаем работу.
+        while (size < array.length) {
+
+
+            for (int i = 0; i < array.length; i += 2 * size) {
+                merge(currentSrc, i, currentSrc, i + size, currentDest, i, size);
             }
+
             tmp = currentSrc;
             currentSrc = currentDest;
             currentDest = tmp;
 
+            //Увеличиваем размер массива
             size = size * 2;
-        }
 
+        }
         return currentSrc;
     }
 
-    //Сама сортировка
-    public void merge(long[] src1, int src1Start, long[] src2,
-                           int src2Start,long[] dest, int destStart,int size){
+    //Слияние массивов в один
+    public void merge(long[] src1, int src1Start, long[] src2, int src2Start, long[] dest, int destStart, int size){
 
+        //индекс текущего элемента 1 массива
         int index1 = src1Start;
+        //индекс текущего элемента 2 массива
         int index2 = src2Start;
 
-        int src1End = Math.min(src1Start + size,src1.length);
-        int src2End = Math.min(src2Start + size,src2.length);
+        //Вычисляем концы под массивов
+        int src1End = Math.min(src1Start + size, src1.length);
+        int src2End = Math.min(src2Start + size, src2.length);
 
+        //Обработка нужна для случая, когда не с чем сливать остаток массива.
+        if (src1Start + size > src1.length) {
+            for (int i = src1Start; i < src1End; i++) {
+                dest[i] = src1[i];
+            }
+            return;
+        }
+
+
+        //Вычисляю сколько итераций надо сделать чтобы соединить два массива.
         int iterationCount = src1End - src1Start + src2End - src2Start;
 
-        for (int i = destStart; i < destStart + iterationCount;i++){
-            if (index1 < src1End && (index2 >= src2End || src1[index1] < src2[index2])){
+        for (int i = destStart; i < destStart + iterationCount; i++) {
+            //Если индекс текущего элемента не превышен и
+            //если элемент первого массива меньше второго или индекс текущего второго массива дошёл до конца
+            //то результат берём из первого массива иначе со второго.
+            if (index1 < src1End && (index2 >= src2End || src1[index1] < src2[index2])) {
                 dest[i] = src1[index1];
                 index1++;
             } else {
                 dest[i] = src2[index2];
                 index2++;
             }
+
         }
 
     }
