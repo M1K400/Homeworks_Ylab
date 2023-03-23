@@ -23,9 +23,6 @@ public class StatsAccumulatorTest {
                     System.out.println("Выйти из приложения - 0\n");
                     System.out.print("Номер команды: ");
                     int numberCommand = scanner.nextInt();
-                    if (numberCommand == 0){
-                        break;
-                    }
                     switch (numberCommand) {
                         case 0 -> { break whileWork; }
                         case 1 -> {
